@@ -15,10 +15,3 @@ export async function getJobs(signal?: AbortSignal): Promise<Job[]> {
   const response = await request<Job[] | { value: Job[] }>('/api/jobs', { signal })
   return Array.isArray(response) ? response : response.value
 }
-
-export function enqueuePlaceholder(signal?: AbortSignal): Promise<Job> {
-  return request<Job>('/api/jobs', {
-    method: 'POST',
-    signal,
-  })
-}

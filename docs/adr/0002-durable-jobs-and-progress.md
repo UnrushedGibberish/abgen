@@ -5,11 +5,11 @@
 
 ## Context
 
-An accepted conversion request must not be lost on page refresh or an API/container restart. Users need useful progress, warnings, and errors. The first milestone needs a runnable durability proof without introducing a dedicated queue service.
+An accepted conversion request must not be lost on page refresh or an API/container restart. Users need useful progress, warnings, and errors. The initial deployment should remain straightforward without introducing a dedicated queue service.
 
 ## Decision
 
-Persist each job's identity, type, status, timestamps, attempt count, and durable ordered user-facing events in PostgreSQL through EF Core. The API transactionally accepts and records work before returning its ID. An ASP.NET Core hosted background service transactionally claims queued jobs within a single API instance and updates progress and terminal state in the database. Recover in-progress attempts only after a conservative 30-second stale-attempt threshold so that an API restart does not automatically mark a still-running job as abandoned. Expose list/get endpoints; the UI re-fetches persisted state after a reload. Begin with one active hosted worker and minimal polling/refresh behavior. Use fake placeholder work to prove the lifecycle in the foundation milestone.
+Persist each job's identity, type, status, timestamps, attempt count, and durable ordered user-facing events in PostgreSQL through EF Core. The API transactionally accepts and records work before returning its ID. An ASP.NET Core hosted background service transactionally claims queued jobs within a single API instance and updates progress and terminal state in the database. Recover in-progress attempts only after a conservative 30-second stale-attempt threshold. Expose list/get endpoints; the UI re-fetches persisted state after a reload. Begin with one active hosted worker and minimal polling/refresh behavior.
 
 ## Alternatives considered
 

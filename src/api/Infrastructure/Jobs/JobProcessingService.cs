@@ -130,7 +130,7 @@ public sealed class JobProcessingService(
         catch (Exception exception)
         {
             logger.LogError(exception, "Job {JobId} failed.", job.Id);
-            job.MarkFailed("job.processing_failed", "The placeholder job could not be completed. Check server logs for details.", clock.UtcNow);
+            job.MarkFailed("job.processing_failed", "The job could not be completed. Check server logs for details.", clock.UtcNow);
             job.AddEvent(JobEventLevel.Error, "job.processing_failed", job.ErrorMessage!, clock.UtcNow);
             await repository.UpdateAsync(job, CancellationToken.None);
         }

@@ -1,6 +1,6 @@
 # Audiobook Generator
 
-A Docker-runnable ebook-to-audiobook application. This repository is at the foundation stage: it demonstrates durable background jobs and a renderer-only UI; EPUB parsing, OpenRouter script analysis, and text-to-speech providers are intentionally deferred.
+A Docker-runnable ebook-to-audiobook application. The foundation includes PostgreSQL-backed job persistence and a hosted worker; ebook ingestion, parsing, and text-to-speech are not yet integrated.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Start the API and PostgreSQL. PostgreSQL data is stored in the Compose named vol
 docker compose up --build
 ```
 
-The API listens at `http://localhost:8080`; liveness is available at `/health` and database readiness at `/health/ready`. PostgreSQL is published on port `5432` for local development and EF migration commands. The single hosted worker transactionally claims work and retries only attempts that remain in progress beyond its conservative stale threshold after a restart. It is a single-instance foundation, not a multi-replica queue.
+The API listens at `http://localhost:8080`; liveness is available at `/health` and database readiness at `/health/ready`. PostgreSQL is published on port `5432` for local development and EF migration commands. Job status is persisted and available through the API; conversion submission will be added with the real workflow. The hosted worker and deployment are single-instance, not a multi-replica queue.
 
 During development, run Vite on the host in another terminal:
 
@@ -63,14 +63,14 @@ Tests are separate from the runtime API project and reference it:
 dotnet test src\tests\AbGen.Tests.csproj
 ```
 
-## Current placeholder workflow
+## Job status
 
-Use `POST /api/jobs` to enqueue a placeholder job and `GET /api/jobs` or `GET /api/jobs/{id}` to read persisted status and events. Refreshing the browser does not cancel work or erase progress; the frontend fetches authoritative state from the API.
+The API exposes `GET /api/jobs` and `GET /api/jobs/{id}` to inspect jobs persisted in PostgreSQL. Job submission and conversion are not available yet; the frontend reads backend-owned status and events and reloads them after a page refresh.
 
-Jobs are persisted in PostgreSQL. This milestone does not accept ebooks or write audio files. Those assets must later use persistent storage too; the database volume alone does not make container-local files durable.
+This milestone does not accept ebooks or write audio files. Those assets must later use persistent storage too; the database volume alone does not make container-local files durable.
 
 ## Future providers
 
-C# provider contracts are in `src/api/Domain/Providers`. EF Core persistence and the hosted job worker are in `src/api/Infrastructure`. EPUB is the first planned importer, OpenRouter the initial parser candidate, and KokoroSharp (C#/ONNX CPU) the preferred future local TTS candidate. None are integrated in this milestone. Emotion metadata must not be described as synthesized unless the selected engine supports it.
+C# provider contracts are in `src/api/Domain/Providers`. EF Core persistence and the hosted job worker are in `src/api/Infrastructure`. EPUB is the first planned importer, OpenRouter the initial parser candidate, and KokoroSharp (C#/ONNX CPU) the preferred future local TTS candidate. These providers are not yet integrated. Emotion metadata must not be described as synthesized unless the selected engine supports it.
 
 Provider credentials remain server-side. The Compose PostgreSQL password is for local development only; replace it and use a secret manager before exposing the service.

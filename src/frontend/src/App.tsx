@@ -87,7 +87,7 @@ function App() {
                   <div className={`job-art job-art-${job.status.toLowerCase()}`} aria-hidden="true"><span>✳</span></div>
                   <div className="job-info">
                     <div className="job-title-row">
-                      <h3>Placeholder job</h3>
+                      <h3>{job.jobType}</h3>
                       <span className={`status-pill status-${job.status.toLowerCase()}`}>{job.status}</span>
                     </div>
                     <p className="job-step">{job.currentStep}</p>

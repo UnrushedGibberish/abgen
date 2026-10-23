@@ -1,23 +1,23 @@
-using AbGen.Api.Domain.Jobs;
-using AbGen.Api.Infrastructure.Jobs;
 using AbGen.Api.Application.Jobs;
+using AbGen.Api.Domain.Jobs;
 
 namespace AbGen.Tests.Jobs;
 
 public sealed class JobApplicationServiceTests
 {
     [Fact]
-    public async Task Enqueue_placeholder_saves_a_durable_job_and_status_can_be_read_again()
+    public async Task Persisted_job_status_and_events_can_be_read_again()
     {
         var repository = new InMemoryJobRepository();
-        var clock = new FixedClock(new DateTimeOffset(2026, 10, 20, 12, 0, 0, TimeSpan.Zero));
-        var service = new JobApplicationService(repository, clock);
+        var job = JobRecord.Create("conversion", "{}", new DateTimeOffset(2026, 10, 20, 12, 0, 0, TimeSpan.Zero));
+        job.AddEvent(JobEventLevel.Information, "job.queued", "Saved.", job.CreatedAt);
+        await repository.EnqueueAsync(job, CancellationToken.None);
+        var service = new JobApplicationService(repository);
 
-        var acceptedJob = await service.EnqueuePlaceholderAsync(CancellationToken.None);
-        var restoredJob = await service.GetByIdAsync(acceptedJob.Id, CancellationToken.None);
+        var restoredJob = await service.GetByIdAsync(job.Id, CancellationToken.None);
 
         Assert.NotNull(restoredJob);
-        Assert.Equal(acceptedJob.Id, restoredJob.Id);
+        Assert.Equal(job.Id, restoredJob.Id);
         Assert.Equal(JobStatus.Queued, restoredJob.Status);
         Assert.Equal("job.queued", Assert.Single(restoredJob.Events).Code);
         Assert.Single(await service.GetAllAsync(CancellationToken.None));
@@ -79,10 +79,5 @@ public sealed class JobApplicationServiceTests
             cancellationToken.ThrowIfCancellationRequested();
             return Task.CompletedTask;
         }
-    }
-
-    private sealed class FixedClock(DateTimeOffset utcNow) : ISystemClock
-    {
-        public DateTimeOffset UtcNow { get; } = utcNow;
     }
 }

@@ -46,7 +46,6 @@ public partial class Program
         builder.Services.AddScoped<IJobRepository, EfJobRepository>();
         builder.Services.AddScoped<JobApplicationService>();
         builder.Services.AddSingleton<ISystemClock, SystemClock>();
-        builder.Services.AddScoped<IJobProcessor, PlaceholderJobProcessor>();
         builder.Services.AddHostedService<JobProcessingService>();
         builder.Services.ConfigureHttpJsonOptions(options =>
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -76,11 +75,6 @@ public partial class Program
     private static void MapEndpoints(WebApplication app)
     {
         var jobs = app.MapGroup("/api/jobs");
-        jobs.MapPost("", async (JobApplicationService service, CancellationToken cancellationToken) =>
-        {
-            var job = await service.EnqueuePlaceholderAsync(cancellationToken);
-            return Results.Accepted($"/api/jobs/{job.Id}", ToResponse(job));
-        });
         jobs.MapGet("", async (JobApplicationService service, CancellationToken cancellationToken) =>
         {
             var storedJobs = await service.GetAllAsync(cancellationToken);
@@ -157,7 +151,7 @@ public partial class Program
             }
             catch (Exception exception)
             {
-                logger.LogCritical(exception, "Database migrations could not be applied. The API will not accept jobs until schema is ready.");
+                logger.LogCritical(exception, "Database migrations could not be applied. The API will not start until schema is ready.");
                 throw;
             }
         }

@@ -1,5 +1,4 @@
 using AbGen.Api.Domain.Jobs;
-using AbGen.Api.Application.Jobs;
 using AbGen.Api.Infrastructure.Jobs;
 using AbGen.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,7 @@ namespace AbGen.Tests.Jobs;
 public sealed class EfJobRepositoryTests
 {
     [Fact]
-    public async Task Queued_job_events_and_recovery_status_roundtrip_through_database()
+    public async Task Job_events_and_recovery_status_roundtrip_through_database()
     {
         var options = new DbContextOptionsBuilder<JobsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -20,7 +19,7 @@ public sealed class EfJobRepositoryTests
         await using (var dbContext = new JobsDbContext(options))
         {
             var repository = new EfJobRepository(dbContext, new FixedClock(now));
-            var job = JobRecord.Create("placeholder", "{}", now);
+            var job = JobRecord.Create("conversion", "{}", now);
             job.AddEvent(JobEventLevel.Information, "job.queued", "Saved.", now);
             await repository.EnqueueAsync(job, CancellationToken.None);
             jobId = job.Id;

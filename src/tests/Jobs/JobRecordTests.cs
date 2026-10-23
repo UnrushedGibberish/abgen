@@ -9,7 +9,7 @@ public sealed class JobRecordTests
     [Fact]
     public void Create_starts_queued_with_no_progress_and_sequence_zero_events()
     {
-        var job = JobRecord.Create("placeholder", "{}", CreatedAt);
+        var job = JobRecord.Create("conversion", "{}", CreatedAt);
         job.AddEvent(JobEventLevel.Information, "job.queued", "Saved.", CreatedAt);
 
         Assert.Equal(JobStatus.Queued, job.Status);
@@ -23,7 +23,7 @@ public sealed class JobRecordTests
     [Fact]
     public void Successful_job_persists_progress_and_ordered_user_events()
     {
-        var job = JobRecord.Create("placeholder", "{}", CreatedAt);
+        var job = JobRecord.Create("conversion", "{}", CreatedAt);
         job.AddEvent(JobEventLevel.Information, "job.queued", "Saved.", CreatedAt);
         job.MarkRunning(CreatedAt.AddSeconds(1));
         job.AddEvent(JobEventLevel.Information, "job.started", "Started.", CreatedAt.AddSeconds(1));
@@ -45,7 +45,7 @@ public sealed class JobRecordTests
     [Fact]
     public void Interrupted_running_job_can_be_requeued_and_retried()
     {
-        var job = JobRecord.Create("placeholder", "{}", CreatedAt);
+        var job = JobRecord.Create("conversion", "{}", CreatedAt);
         job.MarkRunning(CreatedAt.AddSeconds(1));
         job.ReportProgress(50, "Halfway", CreatedAt.AddSeconds(2));
         job.RequeueAfterInterruptedAttempt(CreatedAt.AddSeconds(3));
@@ -62,7 +62,7 @@ public sealed class JobRecordTests
     [Fact]
     public void Invalid_state_transitions_and_progress_are_rejected()
     {
-        var job = JobRecord.Create("placeholder", "{}", CreatedAt);
+        var job = JobRecord.Create("conversion", "{}", CreatedAt);
 
         Assert.Throws<InvalidOperationException>(() => job.ReportProgress(10, "No", CreatedAt));
         Assert.Throws<ArgumentOutOfRangeException>(() => job.AddEvent(JobEventLevel.Information, "too-long", new string('x', 2001), CreatedAt));
