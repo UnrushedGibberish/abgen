@@ -11,6 +11,7 @@ function App() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null)
+  const [sidebarExpanded, setSidebarExpanded] = useState(false)
 
   const refresh = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -57,16 +58,30 @@ function App() {
 
   return (
     <main className="app-shell">
-      <header className="topbar">
-        <a className="wordmark" href="#jobs" aria-label="Abgen home">
+      <aside className={`sidebar${sidebarExpanded ? ' sidebar-expanded' : ''}`}>
+        <a className="wordmark" href="#jobs" aria-label="AB Gen home">
           <span className="wordmark-icon" aria-hidden="true">A</span>
-          <span>abgen</span>
+          <span className="wordmark-label">AB Gen</span>
         </a>
-        <span className="topbar-note">AUDIOBOOK WORKSPACE</span>
-        <span className="service-state"><span className="state-dot" /> DURABLE WORKER</span>
-      </header>
+        <button
+          className="sidebar-toggle"
+          type="button"
+          aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+          aria-expanded={sidebarExpanded}
+          onClick={() => setSidebarExpanded((expanded) => !expanded)}
+        >
+          <span aria-hidden="true">{sidebarExpanded ? '‹' : '›'}</span>
+        </button>
+        <nav className="sidebar-nav" aria-label="Main navigation">
+          <a className="sidebar-link sidebar-link-active" href="#jobs" aria-label="Library">
+            <span className="sidebar-link-icon" aria-hidden="true">▤</span>
+            <span className="sidebar-link-label">Library</span>
+          </a>
+        </nav>
+      </aside>
 
-      <section className="intro" aria-labelledby="page-title">
+      <div className="page-content">
+        <section className="intro" aria-labelledby="page-title">
         <p className="eyebrow">YOUR PERSONAL AUDIO STUDIO</p>
         <h1 id="page-title">A good story<br />deserves a <em>voice.</em></h1>
         <p className="intro-copy">
@@ -153,6 +168,7 @@ function App() {
         <span>MADE FOR STORIES WORTH HEARING</span>
         <span>STATUS LIVES ON THE SERVER, NOT IN THIS TAB.</span>
       </footer>
+      </div>
     </main>
   )
 }
