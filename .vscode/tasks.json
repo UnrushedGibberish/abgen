@@ -1,0 +1,84 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-api",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}\\src\\api\\api.csproj"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "api-debug-preparation",
+      "dependsOn": ["build-api", "docker-compose-up-postgres-detached"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "test-backend",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["test", "${workspaceFolder}\\src\\tests\\AbGen.Tests.csproj"],
+      "options": { "cwd": "${workspaceFolder}", "env": { "DOTNET_HOST_PATH": "C:\\Program Files\\dotnet\\dotnet.exe" } },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "lint-frontend",
+      "type": "process",
+      "command": "npm.cmd",
+      "args": ["run", "lint"],
+      "options": { "cwd": "${workspaceFolder}\\src\\frontend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "build-frontend",
+      "type": "process",
+      "command": "npm.cmd",
+      "args": ["run", "build"],
+      "options": { "cwd": "${workspaceFolder}\\src\\frontend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-compose-up-detached",
+      "type": "process",
+      "command": "docker.exe",
+      "args": ["compose", "up", "--build", "-d"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-compose-up-postgres-detached",
+      "type": "process",
+      "command": "docker.exe",
+      "args": ["compose", "up", "-d", "postgres"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-compose-up",
+      "type": "process",
+      "command": "docker.exe",
+      "args": ["compose", "up", "--build"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-compose-down",
+      "type": "process",
+      "command": "docker.exe",
+      "args": ["compose", "down"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "api + PostgreSQL (detached)",
+      "dependsOn": ["docker-compose-up-detached"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    }
+  ]
+}

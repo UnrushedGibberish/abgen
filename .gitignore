@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/TestResults/
+**/.vs/
+*.user
+*.suo
+*.log
+.env
+.env.*
+!.env.example
+*.local
+.DS_Store

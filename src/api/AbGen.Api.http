@@ -1,0 +1,16 @@
+@AbGen.Api_HostAddress = http://localhost:8080
+
+GET {{AbGen.Api_HostAddress}}/health
+Accept: application/json
+
+###
+
+GET {{AbGen.Api_HostAddress}}/api/jobs
+Accept: application/json
+
+###
+
+POST {{AbGen.Api_HostAddress}}/api/jobs
+Accept: application/json
+
+###
