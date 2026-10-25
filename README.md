@@ -1,6 +1,6 @@
 # Audiobook Generator
 
-A Docker-runnable ebook-to-audiobook application. The foundation includes PostgreSQL-backed job persistence and a hosted worker; ebook ingestion, parsing, and text-to-speech are not yet integrated.
+A Docker-runnable ebook-to-audiobook application. PostgreSQL-backed projects are the top-level container for future ebook uploads, conversion settings, scripts, and generated audiobook assets. This milestone supports project metadata only; ebook ingestion, parsing, and text-to-speech are not yet integrated.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Start the API and PostgreSQL. PostgreSQL data is stored in the Compose named vol
 docker compose up --build
 ```
 
-The API listens at `http://localhost:8080`; liveness is available at `/health` and database readiness at `/health/ready`. PostgreSQL is published on port `5432` for local development and EF migration commands. Job status is persisted and available through the API; conversion submission will be added with the real workflow. The hosted worker and deployment are single-instance, not a multi-replica queue.
+The API listens at `http://localhost:8080`; liveness is available at `/health` and database readiness at `/health/ready`. PostgreSQL is published on port `5432` for local development and EF migration commands. Create and list projects through `POST /api/projects` and `GET /api/projects`; project details are available from `GET /api/projects/{id}`.
 
 During development, run Vite on the host in another terminal:
 
@@ -32,9 +32,9 @@ To stop services, run `docker compose down`. This retains the PostgreSQL volume.
 
 ## Repository layout
 
-- `src/api/` is one ASP.NET Core project. Keep domain models, application services/contracts, and infrastructure implementations separated into folders within that project.
-- `src/tests/` is the independent test project.
-- `src/frontend/` is the React/Vite renderer.
+- `src/api/` is one ASP.NET Core project. `Controllers/` contains HTTP endpoints, `Services/` contains application services and provider contracts, and `Data/` contains EF Core persistence, entities, repositories, health checks, and migrations.
+- `src/tests/` is the independent test project and references the API.
+- `src/frontend/` is the React/Vite project renderer.
 - `docs/adr/` contains architecture decisions; `.github/copilot-instructions.md` contains project-specific guidance.
 
 ## Local backend development
@@ -52,7 +52,7 @@ After changing the EF model, regenerate a migration and apply it on API startup:
 
 ```powershell
 dotnet tool restore
-dotnet tool run dotnet-ef migrations add <MigrationName> --project src\api\api.csproj --startup-project src\api\api.csproj --output-dir Infrastructure\Persistence\Migrations
+dotnet tool run dotnet-ef migrations add <MigrationName> --project src\api\api.csproj --startup-project src\api\api.csproj --output-dir Data\Migrations
 ```
 
 ## Tests
@@ -63,14 +63,12 @@ Tests are separate from the runtime API project and reference it:
 dotnet test src\tests\AbGen.Tests.csproj
 ```
 
-## Job status
+## Current scope
 
-The API exposes `GET /api/jobs` and `GET /api/jobs/{id}` to inspect jobs persisted in PostgreSQL. Job submission and conversion are not available yet; the frontend reads backend-owned status and events and reloads them after a page refresh.
-
-This milestone does not accept ebooks or write audio files. Those assets must later use persistent storage too; the database volume alone does not make container-local files durable.
+Projects currently store a name and creation/update timestamps. Ebook uploads, parsing, script editing, voice selection, and audio generation will be added inside the project workflow over time. Project-owned uploads and generated audio must use persistent storage; the database volume alone does not make container-local files durable.
 
 ## Future providers
 
-C# provider contracts are in `src/api/Domain/Providers`. EF Core persistence and the hosted job worker are in `src/api/Infrastructure`. EPUB is the first planned importer, OpenRouter the initial parser candidate, and KokoroSharp (C#/ONNX CPU) the preferred future local TTS candidate. These providers are not yet integrated. Emotion metadata must not be described as synthesized unless the selected engine supports it.
+Provider contracts are in `src/api/Services/Providers`. Project EF Core persistence is in `src/api/Data`. EPUB is the first planned importer, OpenRouter the initial parser candidate, and KokoroSharp (C#/ONNX CPU) the preferred future local TTS candidate. These providers are not yet integrated. Emotion metadata must not be described as synthesized unless the selected engine supports it.
 
 Provider credentials remain server-side. The Compose PostgreSQL password is for local development only; replace it and use a secret manager before exposing the service.

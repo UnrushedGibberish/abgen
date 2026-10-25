@@ -1,9 +1,21 @@
 @AbGen.Api_HostAddress = http://localhost:8080
 
+### Health
 GET {{AbGen.Api_HostAddress}}/health
 Accept: application/json
 
-###
+### List projects
+GET {{AbGen.Api_HostAddress}}/api/projects
+Accept: application/json
 
-GET {{AbGen.Api_HostAddress}}/api/jobs
+### Create a project
+POST {{AbGen.Api_HostAddress}}/api/projects
+Content-Type: application/json
+
+{
+  "name": "The Wind in the Willows"
+}
+
+### Get a missing project (404)
+GET {{AbGen.Api_HostAddress}}/api/projects/00000000-0000-0000-0000-000000000000
 Accept: application/json
