@@ -12,4 +12,5 @@
 .env.*
 !.env.example
 *.local
+/.vscode/settings.json
 .DS_Store

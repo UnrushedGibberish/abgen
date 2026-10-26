@@ -12,7 +12,10 @@
       "stopAtEntry": false,
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:5014"
+        "ASPNETCORE_URLS": "http://127.0.0.1:${config:abgen.localApiPort}",
+        "ConnectionStrings__Postgres": "Host=127.0.0.1;Port=${config:abgen.localPostgresPort};Database=abgen;Username=abgen;development-only",
+        "Cors__AllowedOrigins__0": "http://127.0.0.1:${config:abgen.localFrontendPort}",
+        "Cors__AllowedOrigins__1": "http://localhost:${config:abgen.localFrontendPort}"
       }
     },
     {
@@ -22,7 +25,9 @@
       "command": "npm.cmd run dev -- --host 127.0.0.1",
       "cwd": "${workspaceFolder}/src/frontend",
       "env": {
-        "VITE_API_BASE_URL": "http://localhost:5014"
+        "ABGEN_API_PORT": "${config:abgen.localApiPort}",
+        "ABGEN_FRONTEND_PORT": "${config:abgen.localFrontendPort}",
+        "VITE_API_BASE_URL": ""
       },
       "serverReadyAction": {
         "action": "openIntegratedBrowser",

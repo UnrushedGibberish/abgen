@@ -12,8 +12,9 @@
     },
     {
       "label": "api-debug-preparation",
-      "dependsOn": ["build-api", "docker-compose-up-postgres-detached"],
+      "dependsOn": ["build-api", "setup-local-dev", "docker-compose-up-postgres-detached"],
       "dependsOrder": "sequence",
+      "detail": "Builds the API, allocates worktree-local ports, and starts its PostgreSQL service.",
       "problemMatcher": []
     },
     {
@@ -49,10 +50,18 @@
       "problemMatcher": []
     },
     {
+      "label": "setup-local-dev",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\scripts\\setup-local-dev.ps1"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
       "label": "docker-compose-up-postgres-detached",
       "type": "process",
       "command": "docker.exe",
-      "args": ["compose", "up", "-d", "postgres"],
+      "args": ["compose", "--env-file", "${workspaceFolder}\\.env", "up", "-d", "postgres"],
       "options": { "cwd": "${workspaceFolder}" },
       "problemMatcher": []
     },
