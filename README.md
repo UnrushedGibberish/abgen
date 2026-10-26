@@ -26,6 +26,8 @@ npm install
 npm run dev
 ```
 
+The .NET API types and endpoints generate the OpenAPI schema at `src/api/obj/openapi/api.json`. TypeScript types are generated from that schema before each frontend build. After changing API contracts, refresh the generated frontend types with `npm run generate:api`; run `npm run check:api` to verify checked-in generated types match the current backend schema.
+
 Open the Vite URL (normally `http://localhost:5173`). Vite proxies API and health requests to `http://localhost:8080`; use `VITE_API_BASE_URL` only when targeting another API. The `.NET API + Vite (local PostgreSQL)` debug profile runs the API on port `5014`, starts the PostgreSQL Compose service, and points Vite to that API.
 
 To stop services, run `docker compose down`. This retains the PostgreSQL volume. To intentionally remove persisted data, run `docker compose down -v`.

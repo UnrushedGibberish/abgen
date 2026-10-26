@@ -1,6 +1,3 @@
-export interface Project {
-  id: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
+import type { ProjectResponse } from './generated/types.gen'
+
+export type Project = ProjectResponse

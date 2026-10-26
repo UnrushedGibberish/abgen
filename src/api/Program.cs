@@ -1,3 +1,4 @@
+using System.Reflection;
 using AbGen.Api;
 using AbGen.Api.Controllers;
 using AbGen.Api.Data;
@@ -20,14 +21,20 @@ public partial class Program
         }
 
         var app = CreateApplication(args);
-        await EnsureDatabaseAsync(app);
+        if (!IsOpenApiBuild)
+        {
+            await EnsureDatabaseAsync(app);
+        }
+
         await app.RunAsync();
     }
+
+    private static bool IsOpenApiBuild => Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider";
 
     private static WebApplication CreateApplication(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        ConfigureServices(builder);
+        ConfigureServices(builder, IsOpenApiBuild);
 
         var app = builder.Build();
         ConfigureMiddleware(app);
@@ -35,17 +42,21 @@ public partial class Program
         return app;
     }
 
-    private static void ConfigureServices(WebApplicationBuilder builder)
+    private static void ConfigureServices(WebApplicationBuilder builder, bool isOpenApiBuild)
     {
-        var connectionString = builder.Configuration.GetConnectionString("Postgres")
-            ?? throw new InvalidOperationException("ConnectionStrings:Postgres must be configured.");
-
-        builder.Services.AddDbContext<ProjectDbContext>(options => options.UseNpgsql(connectionString));
         builder.Services.AddHealthChecks()
-            .AddCheck("liveness", () => HealthCheckResult.Healthy(), tags: ["live"])
-            .AddCheck<PostgresReadinessCheck>("postgresql", tags: ["ready"]);
-        builder.Services.AddScoped<IProjectRepository, EfProjectRepository>();
-        builder.Services.AddScoped<IProjectService, ProjectService>();
+            .AddCheck("liveness", () => HealthCheckResult.Healthy(), tags: ["live"]);
+        if (!isOpenApiBuild)
+        {
+            var connectionString = builder.Configuration.GetConnectionString("Postgres")
+                ?? throw new InvalidOperationException("ConnectionStrings:Postgres must be configured.");
+
+            builder.Services.AddDbContext<ProjectDbContext>(options => options.UseNpgsql(connectionString));
+            builder.Services.AddHealthChecks().AddCheck<PostgresReadinessCheck>("postgresql", tags: ["ready"]);
+            builder.Services.AddScoped<IProjectRepository, EfProjectRepository>();
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+        }
+
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddValidation();
         builder.Services.AddOpenApi();
