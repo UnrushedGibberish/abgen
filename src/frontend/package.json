@@ -5,15 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run generate:api && tsc -b && vite build",
+    "generate:api": "dotnet build ../api/api.csproj && openapi-ts -i ../api/obj/openapi/api.json -o src/generated",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:api": "dotnet build ../api/api.csproj --no-restore /p:OpenApiGenerateDocumentsOnBuild=false && openapi-ts -i ../api/obj/openapi/api.json -o src/generated --no-log-file --silent && git diff --exit-code -- src/generated"
   },
   "dependencies": {
+    "openapi-fetch": "^0.17.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "0.97.0",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

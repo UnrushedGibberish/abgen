@@ -15,6 +15,21 @@ The VS Code debug profile is the recommended per-worktree workflow. Open the wor
 To use Compose for the full stack, run the setup script first, then `docker compose up --build`. PostgreSQL data is stored in a Compose named volume unique to each worktree. The API is available at `http://localhost:<ABGEN_API_PORT>`; liveness is available at `/health` and database readiness at `/health/ready`. PostgreSQL is published on `127.0.0.1:<ABGEN_POSTGRES_PORT>` for local development and EF migration commands. Create and list projects through `POST /api/projects` and `GET /api/projects`; project details are available from `GET /api/projects/{id}`.
 
 To stop a worktree's services, run `docker compose down` from that worktree. This retains its PostgreSQL volume. To intentionally remove that worktree's persisted data, run `docker compose down -v`.
+The API listens at `http://localhost:8080`; liveness is available at `/health` and database readiness at `/health/ready`. PostgreSQL is published on port `5432` for local development and EF migration commands. Create and list projects through `POST /api/projects` and `GET /api/projects`; project details are available from `GET /api/projects/{id}`.
+
+During development, run Vite on the host in another terminal:
+
+```powershell
+Set-Location src\frontend
+npm install
+npm run dev
+```
+
+The .NET API types and endpoints generate the OpenAPI schema at `src/api/obj/openapi/api.json`. TypeScript types are generated from that schema before each frontend build. After changing API contracts, refresh the generated frontend types with `npm run generate:api`; run `npm run check:api` to verify checked-in generated types match the current backend schema.
+
+Open the Vite URL (normally `http://localhost:5173`). Vite proxies API and health requests to `http://localhost:8080`; use `VITE_API_BASE_URL` only when targeting another API. The `.NET API + Vite (local PostgreSQL)` debug profile runs the API on port `5014`, starts the PostgreSQL Compose service, and points Vite to that API.
+
+To stop services, run `docker compose down`. This retains the PostgreSQL volume. To intentionally remove persisted data, run `docker compose down -v`.
 
 ## Repository layout
 
