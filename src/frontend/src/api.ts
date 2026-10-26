@@ -16,6 +16,10 @@ export async function getProjects(signal?: AbortSignal): Promise<Project[]> {
   return Array.isArray(response) ? response : response.value
 }
 
+export function getProject(id: string, signal?: AbortSignal): Promise<Project> {
+  return request<Project>(`/api/projects/${encodeURIComponent(id)}`, { signal })
+}
+
 export function createProject(name: string): Promise<Project> {
   return request<Project>('/api/projects', {
     method: 'POST',
