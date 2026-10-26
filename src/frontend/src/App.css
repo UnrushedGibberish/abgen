@@ -118,13 +118,6 @@
   letter-spacing: -0.8px;
 }
 
-.section-heading h2 span {
-  margin-left: 4px;
-  color: #9b9a89;
-  font: 500 10px/1 system-ui, sans-serif;
-  vertical-align: top;
-}
-
 .create-project-button {
   min-height: 36px;
   padding: 0 14px;

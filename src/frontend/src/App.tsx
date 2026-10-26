@@ -65,7 +65,7 @@ function App() {
       <div className="page-content">
         <section className="library" id="projects" aria-labelledby="projects-title">
           <div className="section-heading">
-            <h2 id="projects-title">Your projects <span>{projects.length.toString().padStart(2, '0')}</span></h2>
+            <h2 id="projects-title">Your projects</h2>
             <button className="create-project-button" type="button" disabled={creating} onClick={() => void handleCreateProject()}>
               {creating ? 'Creating…' : 'New project'}
             </button>
